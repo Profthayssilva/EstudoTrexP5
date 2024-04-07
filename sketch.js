@@ -155,62 +155,82 @@ function setup(){
 
 }
 
-function draw(){
-  background("white")
+function draw() {
+  background("white");
 
-  
-  
-  if(gameState == PLAY){
-    perdeuOtario.visible = 0
-    platinar.visible = 0
-    //chao
-    chao.velocityX = -2
-    if(chao.x < 0){
-      chao.x = chao.width/2
+  // Verifica se o jogo está em andamento (PLAY)
+  if (gameState == PLAY) {
+    // Oculta as mensagens de game over e reinício
+    perdeuOtario.visible = false;
+    platinar.visible = false;
+
+    // Move o chão
+    chao.velocityX = -2;
+    if (chao.x < 0) {
+      chao.x = chao.width / 2;
     }
-    //pontos
-    text("Pontuação: " + pontos, 500, 50)
-    pontos = Math.round(frameCount/6)
-    //mecânica de pulo
-    if(keyDown("SPACE")&& trex.y >= 160){
-    trex.velocityY =-10
-    pulando.play()
-     }
 
-    trex.depth = 2
-    //funções
-    nuvenzitas()
-    obstaculos() 
-    if(pontos>0 && pontos%10 == 0){
-      checkPoint.play() 
-   }
-    if(obstaculosG.isTouching(trex)){
-      gameState = END
-      morrendo.play()
+    // Exibe a pontuação
+    text("Pontuação: " + pontos, 500, 50);
+
+    // Atualiza a pontuação
+    pontos = Math.round(frameCount / 6);
+
+    // Mecânica de pulo
+    if (keyDown("SPACE") && trex.y >= 160) {
+      trex.velocityY = -10;
+      pulando.play();
     }
-  }else if(gameState == END){
-    chao.velocityX = 0
-    obstaculosG.setVelocityXEach(0)
-    nuvenzitasG.setVelocityXEach(0)
-    obstaculosG.setLifetimeEach(-1)
-    nuvenzitasG.setLifetimeEach(-1)
-    trex.velocityY = 0
-    trex.changeAnimation("morteMorrida", morrido)
-    perdeuOtario.visible = 1
-    platinar.visible = 1
 
+    // Atualiza a posição do trex
+    trex.depth = 2;
+
+    // Cria nuvens e obstáculos
+    nuvenzitas();
+    obstaculos();
+
+    // Verifica se a pontuação é múltiplo de 10 para reproduzir o som de checkpoint
+    if (pontos > 0 && pontos % 10 == 0) {
+      checkPoint.play();
+    }
+
+    // Verifica colisão com obstáculos
+    if (obstaculosG.isTouching(trex)) {
+      gameState = END;
+      morrendo.play();
+    }
+  } else if (gameState == END) {
+    // Para o movimento do chão e dos obstáculos
+    chao.velocityX = 0;
+    obstaculosG.setVelocityXEach(0);
+    nuvenzitasG.setVelocityXEach(0);
+
+    // Mantém a posição do trex
+    trex.velocityY = 0;
+
+    // Altera a animação do trex para a de morte
+    trex.changeAnimation("morteMorrida", morrido);
+
+    // Exibe as mensagens de game over e reinício
+    perdeuOtario.visible = true;
+    platinar.visible = true;
   }
 
+  // Aplica a gravidade ao trex
+  trex.velocityY = trex.velocityY + 0.5;
 
-      //mecanica da gravidade
-      trex.velocityY = trex.velocityY + 0.5 
-          //colisão no chão
-    trex.collide(ninguemSeImporta)
-    if(mousePressedOver(platinar)){
-      console.log("deu certo");
-    }
-    drawSprites();
+  // Colisão com o chão
+  trex.collide(ninguemSeImporta);
+
+  // Verifica se o botão de reinício foi pressionado
+  if (mousePressedOver(platinar)) {
+    reset();
+  }
+
+  // Desenha todos os sprites
+  drawSprites();
 }
+
 
 function nuvenzitas(){
   if(frameCount % 60 == 0){
@@ -258,4 +278,18 @@ function obstaculos(){
   }
   obstaculosG.add(kakitus)
 }
+}
+
+function reset(){
+  gameState = PLAY;
+  platinar.visible = false;
+  perdeuOtario.visible = false;
+  
+
+  obstaculosG.destroyEach();
+  nuvenzitasG.destroyEach();
+   trex.changeAnimation("correndo", trexCorrendo);
+  
+  pontos = 0;
+  
 }
